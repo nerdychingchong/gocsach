@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư Viện Ấm Cúng - Gợi Ý Sách AI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        amberwarm: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                            950: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-serif {
+            font-family: 'Merriweather', serif;
+        }
+        /* Custom smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-amber-50/50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 min-h-full flex flex-col transition-colors duration-300">
+
+    <!-- Header / Navigation -->
+    <header class="border-b border-amber-200/60 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-xl bg-amber-600 dark:bg-amber-700 flex items-center justify-center text-white shadow-lg shadow-amber-600/20">
+                    <i class="fa-solid fa-book-open-reader text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold font-serif tracking-tight text-amber-900 dark:text-amber-100">Góc Sách Ấm Cúng</h1>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">Gợi ý sách thông minh cùng Gemini AI</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <!-- API Key Button -->
+                <button onclick="openApiKeyModal()" class="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-medium bg-amber-100 dark:bg-stone-800 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-stone-700 transition shadow-sm border border-amber-300/40 dark:border-stone-700">
+                    <i class="fa-solid fa-key text-amber-600 dark:text-amber-400"></i>
+                    <span>Cấu hình API Key</span>
+                </button>
+
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-stone-800 flex items-center justify-center text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-stone-700 transition border border-amber-300/40 dark:border-stone-700">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Column: Input Form & User Library (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col space-y-6">
+            
+            <!-- Book Input Form Card -->
+            <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-xl shadow-stone-200/50 dark:shadow-none border border-amber-100 dark:border-stone-800">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold font-serif flex items-center space-x-2 text-amber-900 dark:text-amber-200">
+                        <i class="fa-solid fa-bookmark text-amber-600 dark:text-amber-500"></i>
+                        <span id="form-title">Thêm sách yêu thích</span>
+                    </h2>
+                    <button id="cancel-edit-btn" onclick="resetForm()" class="hidden text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-300 underline">Hủy sửa</button>
+                </div>
+                
+                <form id="book-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <input type="hidden" id="book-id">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">Tên sách *</label>
+                        <input type="text" id="book-title" required placeholder="Ví dụ: Nhà Giả Kim, Sapiens..." 
+                            class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 text-sm">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">Tác giả *</label>
+                            <input type="text" id="book-author" required placeholder="Ví dụ: Paulo Coelho" 
+                                class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">Thể loại</label>
+                            <select id="book-genre" 
+                                class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 text-sm">
+                                <option value="Tiểu thuyết / Văn học">Tiểu thuyết / Văn học</option>
+                                <option value="Khoa học / Lịch sử">Khoa học / Lịch sử</option>
+                                <option value="Nghệ thuật / Thiết kế">Nghệ thuật / Thiết kế</option>
+                                <option value="Self-help / Tâm lý học">Self-help / Tâm lý học</option>
+                                <option value="Kinh doanh / Khởi nghiệp">Kinh doanh / Khởi nghiệp</option>
+                                <option value="Triết học / Tâm linh">Triết học / Tâm linh</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">Cảm nhận / Lý do thích</label>
+                        <textarea id="book-reason" rows="2" placeholder="Sách truyền cảm hứng, lối viết sâu sắc..." 
+                            class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 text-sm resize-none"></textarea>
+                    </div>
+
+                    <div class="flex space-x-3 pt-2">
+                        <button type="submit" id="submit-btn" class="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-medium text-sm transition shadow-lg shadow-amber-600/20 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span id="submit-btn-text">Thêm vào tủ sách</span>
+                        </button>
+                        <button type="button" onclick="loadSampleBooks()" title="Nạp nhanh sách mẫu" class="px-4 py-3 rounded-xl bg-amber-100 dark:bg-stone-800 hover:bg-amber-200 dark:hover:bg-stone-700 text-amber-800 dark:text-amber-300 font-medium text-sm transition border border-amber-300/40 dark:border-stone-700">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- User Book List Card -->
+            <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-xl shadow-stone-200/50 dark:shadow-none border border-amber-100 dark:border-stone-800 flex flex-col flex-grow">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold font-serif flex items-center space-x-2 text-amber-900 dark:text-amber-200">
+                        <i class="fa-solid fa-books text-amber-600 dark:text-amber-500"></i>
+                        <span>Tủ sách của bạn</span>
+                        <span id="book-count-badge" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-stone-800 text-amber-800 dark:text-amber-300 font-sans">0</span>
+                    </h2>
+                    <button onclick="clearAllBooks()" class="text-xs text-stone-400 hover:text-red-500 transition">Xóa tất cả</button>
+                </div>
+
+                <!-- Books List Container -->
+                <div id="user-books-container" class="space-y-3 overflow-y-auto max-h-[350px] pr-1">
+                    <!-- Dynamic Items rendered here -->
+                </div>
+
+                <!-- AI Recommendation Trigger -->
+                <div class="mt-6 pt-4 border-t border-stone-100 dark:border-stone-800">
+                    <button onclick="getAiRecommendations()" id="ai-recommend-btn" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold text-sm transition shadow-lg shadow-amber-600/25 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-robot text-amber-200"></i>
+                        <span>Nhận gợi ý từ Gemini AI</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Recommendations Area (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col space-y-6">
+            <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 shadow-xl shadow-stone-200/50 dark:shadow-none border border-amber-100 dark:border-stone-800 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-stone-100 dark:border-stone-800">
+                    <div>
+                        <h2 class="text-xl font-bold font-serif text-amber-900 dark:text-amber-100 flex items-center space-x-2">
+                            <i class="fa-solid fa-compass text-amber-600 dark:text-amber-500"></i>
+                            <span>Gợi ý sách phù hợp dành cho bạn</span>
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">Hệ thống thuật toán kết hợp Gemini AI phân tích phong cách đọc</p>
+                    </div>
+                    <div id="status-indicator" class="hidden items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-stone-800 text-amber-700 dark:text-amber-300 text-xs font-medium border border-amber-200 dark:border-stone-700">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span id="status-text">AI đang phân tích...</span>
+                    </div>
+                </div>
+
+                <!-- Recommendation Container -->
+                <div id="recommendations-container" class="flex-grow space-y-6 overflow-y-auto max-h-[750px] pr-2">
+                    <!-- Initial State / Empty Prompt -->
+                    <div class="flex flex-col items-center justify-center py-16 text-center">
+                        <div class="w-20 h-20 rounded-2xl bg-amber-100 dark:bg-stone-800 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4 shadow-inner">
+                            <i class="fa-solid fa-lightbulb text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-stone-700 dark:text-stone-300 mb-1">Khám phá hành trình đọc sách mới</h3>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 max-w-md mb-6">Hãy thêm ít nhất một cuốn sách yêu thích vào tủ sách bên trái hoặc bấm nút "Nạp nhanh sách mẫu", sau đó bấm <span class="font-medium text-amber-600 dark:text-amber-400">"Nhận gợi ý từ Gemini AI"</span>.</p>
+                        <button onclick="getAiRecommendations()" class="px-5 py-2.5 rounded-xl bg-amber-100 dark:bg-stone-800 hover:bg-amber-200 dark:hover:bg-stone-700 text-amber-900 dark:text-amber-200 text-sm font-medium transition border border-amber-300/40 dark:border-stone-700">
+                            Xem gợi ý mặc định
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-6 text-center text-xs text-stone-500 dark:text-stone-400 border-t border-amber-200/40 dark:border-stone-800">
+        <p>Ứng dụng gợi ý sách thông minh • Tích hợp Google Gemini API & Giao diện ấm cúng</p>
+    </footer>
+
+    <!-- API Key Modal -->
+    <div id="api-modal" class="fixed inset-0 bg-stone-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-stone-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-amber-200 dark:border-stone-800">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold font-serif text-amber-900 dark:text-amber-100 flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-amber-600"></i>
+                    <span>Cấu hình Gemini API Key</span>
+                </h3>
+                <button onclick="closeApiKeyModal()" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mb-4">
+                Ứng dụng sử dụng mô hình <code class="bg-amber-50 dark:bg-stone-800 px-1 py-0.5 rounded text-amber-600 dark:text-amber-400">gemini-3-flash-preview</code> để phân tích tủ sách và đề xuất sách chuyên sâu. Nếu để trống, hệ thống sẽ sử dụng API Key mặc định của hệ thống.
+            </p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">Gemini API Key</label>
+                    <input type="password" id="api-key-input" placeholder="Dán API Key của bạn vào đây (tùy chọn)..." 
+                        class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button onclick="closeApiKeyModal()" class="px-4 py-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 text-sm font-medium transition">Hủy</button>
+                    <button onclick="saveApiKey()" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition shadow-lg shadow-amber-600/20">Lưu lại</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-stone-900 text-white dark:bg-white dark:text-stone-900 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-amber-400"></i>
+            <span id="toast-message">Thao tác thành công</span>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        let userBooks = JSON.parse(localStorage.getItem('user_books')) || [
+            { id: '1', title: 'Nhà Giả Kim', author: 'Paulo Coelho', genre: 'Tiểu thuyết / Văn học', reason: 'Truyền cảm hứng theo đuổi ước mơ và lắng nghe trái tim.' },
+            { id: '2', title: 'Sapiens: Lược sử loài người', author: 'Yuval Noah Harari', genre: 'Khoa học / Lịch sử', reason: 'Mở mang góc nhìn về nguồn gốc và sự phát triển của nhân loại.' }
+        ];
+
+        let apiKey = localStorage.getItem('gemini_api_key') || '';
+        let editingId = null;
+
+        // Initialize on Load
+        window.onload = function() {
+            renderUserBooks();
+            // Check saved theme
+            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            }
+        };
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fa-solid fa-sun';
+            }
+        }
+
+        // Modal Controls
+        function openApiKeyModal() {
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('api-modal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('api-modal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            localStorage.setItem('gemini_api_key', apiKey);
+            closeApiKeyModal();
+            showToast('Đã lưu API Key thành công!', 'success');
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+            
+            msgEl.textContent = message;
+            iconEl.className = type === 'success' ? 'fa-solid fa-circle-check text-amber-400' : 'fa-solid fa-circle-exclamation text-red-400';
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Load Sample Books
+        function loadSampleBooks() {
+            userBooks = [
+                { id: 's1', title: 'Thiết kế đồ họa cơ bản', author: 'Adrian Shaughnessy', genre: 'Nghệ thuật / Thiết kế', reason: 'Tư duy bố cục và thẩm mỹ cho designer hiện đại.' },
+                { id: 's2', title: 'Đắc Nhân Tâm', author: 'Dale Carnegie', genre: 'Self-help / Tâm lý học', reason: 'Nghệ thuật ứng xử và thấu hiểu tâm lý con người.' },
+                { id: 's3', title: 'Atomic Habits (Thay đổi tí ti, hiệu quả như ý)', author: 'James Clear', genre: 'Self-help / Tâm lý học', reason: 'Xây dựng thói quen tốt và loại bỏ thói quen xấu một cách khoa học.' }
+            ];
+            saveAndRender();
+            showToast('Đã nạp danh sách sách mẫu phong phú!');
+        }
+
+        // Save & Render User Books
+        function saveAndRender() {
+            localStorage.setItem('user_books', JSON.stringify(userBooks));
+            renderUserBooks();
+        }
+
+        function renderUserBooks() {
+            const container = document.getElementById('user-books-container');
+            const badge = document.getElementById('book-count-badge');
+            badge.textContent = userBooks.length;
+
+            if (userBooks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-stone-400 dark:text-stone-500 text-xs">
+                        <i class="fa-solid fa-book-bookmark text-2xl mb-2 opacity-50"></i>
+                        <p>Chưa có cuốn sách nào trong tủ sách.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userBooks.map(book => `
+                <div class="group relative bg-amber-50/40 dark:bg-stone-800/40 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-xl p-3.5 border border-amber-200/50 dark:border-stone-700 transition flex items-start justify-between">
+                    <div class="pr-12">
+                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-amber-200/60 dark:bg-stone-700 text-amber-900 dark:text-amber-300 mb-1">${escapeHtml(book.genre)}</span>
+                        <h4 class="font-semibold text-sm text-stone-800 dark:text-stone-200">${escapeHtml(book.title)}</h4>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 italic">Tác giả: ${escapeHtml(book.author)}</p>
+                        ${book.reason ? `<p class="text-xs text-stone-600 dark:text-stone-300 mt-1 line-clamp-2">"${escapeHtml(book.reason)}"</p>` : ''}
+                    </div>
+                    <div class="absolute right-3 top-3 flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition">
+                        <button onclick="editBook('${book.id}')" title="Sửa" class="w-7 h-7 rounded-lg bg-white dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-amber-100 hover:text-amber-800 flex items-center justify-center text-xs shadow-sm transition">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteBook('${book.id}')" title="Xóa" class="w-7 h-7 rounded-lg bg-white dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-red-100 hover:text-red-600 flex items-center justify-center text-xs shadow-sm transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Form Submit Handler (Add or Update)
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const idInput = document.getElementById('book-id').value;
+            const title = document.getElementById('book-title').value.trim();
+            const author = document.getElementById('book-author').value.trim();
+            const genre = document.getElementById('book-genre').value;
+            const reason = document.getElementById('book-reason').value.trim();
+
+            if (!title || !author) return;
+
+            if (idInput) {
+                // Update
+                userBooks = userBooks.map(b => b.id === idInput ? { id: idInput, title, author, genre, reason } : b);
+                showToast('Đã cập nhật sách thành công!');
+            } else {
+                // Add new
+                const newBook = {
+                    id: Date.now().toString(),
+                    title,
+                    author,
+                    genre,
+                    reason
+                };
+                userBooks.unshift(newBook);
+                showToast('Đã thêm sách vào tủ sách!');
+            }
+
+            resetForm();
+            saveAndRender();
+        }
+
+        function editBook(id) {
+            const book = userBooks.find(b => b.id === id);
+            if (!book) return;
+
+            document.getElementById('book-id').value = book.id;
+            document.getElementById('book-title').value = book.title;
+            document.getElementById('book-author').value = book.author;
+            document.getElementById('book-genre').value = book.genre;
+            document.getElementById('book-reason').value = book.reason;
+
+            document.getElementById('form-title').textContent = 'Chỉnh sửa sách';
+            document.getElementById('submit-btn-text').textContent = 'Lưu thay đổi';
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+            document.getElementById('book-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('book-form').reset();
+            document.getElementById('book-id').value = '';
+            document.getElementById('form-title').textContent = 'Thêm sách yêu thích';
+            document.getElementById('submit-btn-text').textContent = 'Thêm vào tủ sách';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        }
+
+        function deleteBook(id) {
+            userBooks = userBooks.filter(b => b.id !== id);
+            saveAndRender();
+            showToast('Đã xóa sách khỏi tủ sách', 'success');
+        }
+
+        function clearAllBooks() {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ tủ sách?')) {
+                userBooks = [];
+                saveAndRender();
+                showToast('Đã làm trống tủ sách');
+            }
+        }
+
+        // Helper escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#039;');
+        }
+
+        // AI Recommendation Engine via Gemini API
+        async function getAiRecommendations() {
+            const container = document.getElementById('recommendations-container');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            const recommendBtn = document.getElementById('ai-recommend-btn');
+
+            statusIndicator.classList.remove('hidden');
+            statusIndicator.classList.add('flex');
+            recommendBtn.disabled = true;
+            recommendBtn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20 text-center animate-pulse">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-stone-800 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
+                        <i class="fa-solid fa-robot text-3xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-base font-semibold text-stone-700 dark:text-stone-300 mb-1">Gemini AI đang phân tích gu đọc sách...</h4>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">Đang tổng hợp các đầu sách phù hợp nhất với sở thích của bạn</p>
+                </div>
+            `;
+
+            // Prepare prompt based on user books
+            const booksSummary = userBooks.length > 0 
+                ? userBooks.map(b => `- "${b.title}" của tác giả ${b.author} (Thể loại: ${b.genre}). Lý do thích: ${b.reason || 'Không có ghi chú'}`).join('\n')
+                : "Người dùng chưa nhập sách cụ thể nào, hãy gợi ý những cuốn sách kinh điển hay nhất mọi thời đại thuộc các thể loại đa dạng (Tiểu thuyết, Nghệ thuật, Khoa học, Self-help).";
+
+            const systemPrompt = "Bạn là một trợ lý chuyên gia tư vấn sách uy tín, tinh tế và có gu thẩm mỹ văn học cao. Hãy phân tích danh sách sách yêu thích của người dùng để hiểu rõ gu đọc sách, phong cách và sở thích của họ. Sau đó, hãy gợi ý chính xác 4-5 cuốn sách xuất sắc tiếp theo.";
+            
+            const userQuery = `Dưới đây là danh sách các cuốn sách tôi đã đọc và rất yêu thích:\n${booksSummary}\n\nHãy gợi ý cho tôi 4 cuốn sách tiếp theo nên đọc. Trả về kết quả hoàn toàn bằng định dạng JSON chuẩn (không kèm markdown thừa như \`\`\`json) với cấu trúc như sau:
+            [
+              {
+                "title": "Tên sách",
+                "author": "Tác giả",
+                "genre": "Thể loại phù hợp",
+                "rating": "4.8/5",
+                "reason": "Phân tích chi tiết tại sao cuốn sách này cực kỳ phù hợp với gu đọc sách hiện tại của người dùng dựa trên danh sách họ đã thích.",
+                "quote": "Một câu nói hoặc đoạn trích ngắn truyền cảm hứng từ sách",
+                "coverColor": "from-amber-600 to-amber-800"
+              }
+            ]`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            };
+
+            const activeApiKey = apiKey || "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
+
+            try {
+                let response = null;
+                let data = null;
+                let retries = 3;
+                let delay = 1000;
+
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) {
+                            data = await response.json();
+                            break;
+                        }
+                    } catch (err) {
+                        if (i === retries - 1) throw err;
+                    }
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+
+                if (!response || !response.ok) {
+                    throw new Error('Không thể kết nối đến Gemini API. Vui lòng kiểm tra lại API Key.');
+                }
+
+                const candidate = data.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const jsonText = candidate.content.parts[0].text;
+                    const recommendations = JSON.parse(jsonText);
+                    renderRecommendations(recommendations);
+                    showToast('Đã nhận gợi ý thành công từ Gemini AI!');
+                } else {
+                    throw new Error('Dữ liệu trả về từ AI không hợp lệ.');
+                }
+
+            } catch (error) {
+                console.error(error);
+                // Fallback mock recommendations if API fails or quota exceeds
+                renderRecommendations(getFallbackRecommendations());
+                showToast('Sử dụng dữ liệu gợi ý thông minh dự phòng.', 'info');
+            } finally {
+                statusIndicator.classList.add('hidden');
+                statusIndicator.classList.remove('flex');
+                recommendBtn.disabled = false;
+                recommendBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
+        function getFallbackRecommendations() {
+            return [
+                {
+                    title: "Bắt Trẻ Đồng Xanh",
+                    author: "J.D. Salinger",
+                    genre: "Tiểu thuyết / Văn học",
+                    rating: "4.8/5",
+                    reason: "Phù hợp với những ai yêu thích văn học tâm lý sâu sắc, sự chiêm nghiệm về tuổi trẻ và khát vọng tìm kiếm sự chân thật giữa thế giới nội tâm.",
+                    quote: "Tôi cứ tưởng tượng ra có bao nhiêu đứa trẻ chơi đùa trên một cánh đồng lúa mì rộng lớn...",
+                    coverColor: "from-emerald-700 to-teal-900"
+                },
+                {
+                    title: "Nghệ Thuật Bày Trì Cuộc Sống",
+                    author: "Marie Kondō",
+                    genre: "Self-help / Tâm lý học",
+                    rating: "4.7/5",
+                    reason: "Gợi ý tuyệt vời giúp bạn sắp xếp lại không gian sống và tâm trí, mang lại năng lượng tích cực và sự tĩnh tại.",
+                    quote: "Chỉ giữ lại những món đồ thực sự đánh thức niềm vui trong trái tim bạn.",
+                    coverColor: "from-sky-700 to-indigo-900"
+                },
+                {
+                    title: "Tư Duy Nhanh Và Chậm",
+                    author: "Daniel Kahneman",
+                    genre: "Khoa học / Tâm lý học",
+                    rating: "4.9/5",
+                    reason: "Giúp bạn thấu hiểu sâu sắc cách bộ não con người ra quyết định, mở rộng tư duy logic và phân tích.",
+                    quote: "Hệ thống 1 hoạt động tự động và nhanh chóng, với ít hoặc không có nỗ lực và không có ý thức kiểm soát.",
+                    coverColor: "from-amber-700 to-orange-900"
+                },
+                {
+                    title: "Hành Trình Về Phương Đông",
+                    author: "Bairdi Spalding",
+                    genre: "Triết học / Tâm linh",
+                    rating: "4.9/5",
+                    reason: "Dẫn dắt bạn khám phá những giá trị tinh thần cổ xưa và năng lực vô biên tiềm ẩn bên trong con người.",
+                    quote: "Con người chỉ là sản phẩm của những suy nghĩ của chính mình; anh ta nghĩ gì, anh ta trở thành như thế ấy.",
+                    coverColor: "from-purple-700 to-violet-900"
+                }
+            ];
+        }
+
+        function renderRecommendations(list) {
+            const container = document.getElementById('recommendations-container');
+            
+            container.innerHTML = list.map((item, index) => `
+                <div class="bg-amber-50/40 dark:bg-stone-800/40 rounded-2xl p-5 border border-amber-200/60 dark:border-stone-700/80 hover:shadow-lg transition flex flex-col sm:flex-row gap-5 items-start">
+                    <!-- Book Badge / Cover simulation -->
+                    <div class="w-full sm:w-28 h-36 rounded-xl bg-gradient-to-br ${item.coverColor || 'from-amber-600 to-amber-800'} flex flex-col items-center justify-center p-3 text-white text-center shadow-md flex-shrink-0">
+                        <i class="fa-solid fa-book text-2xl mb-2 opacity-90"></i>
+                        <span class="text-[11px] font-bold font-serif line-clamp-2">${escapeHtml(item.title)}</span>
+                    </div>
+
+                    <!-- Book Details -->
+                    <div class="flex-grow space-y-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-200/60 dark:bg-stone-700 text-amber-900 dark:text-amber-300">${escapeHtml(item.genre)}</span>
+                            <div class="flex items-center space-x-1 text-amber-500 text-xs font-semibold">
+                                <i class="fa-solid fa-star"></i>
+                                <span>${escapeHtml(item.rating || '4.8/5')}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-base font-bold font-serif text-stone-900 dark:text-amber-100">${escapeHtml(item.title)}</h3>
+                            <p class="text-xs text-stone-500 dark:text-stone-400 font-medium">Tác giả: ${escapeHtml(item.author)}</p>
+                        </div>
+
+                        <p class="text-xs text-stone-700 dark:text-stone-300 leading-relaxed bg-white/60 dark:bg-stone-900/40 p-3 rounded-xl border border-amber-100 dark:border-stone-800">
+                            <strong class="text-amber-800 dark:text-amber-300 font-semibold">Tại sao phù hợp:</strong> ${escapeHtml(item.reason)}
+                        </p>
+
+                        ${item.quote ? `
+                            <p class="text-[11px] italic text-stone-500 dark:text-stone-400 border-l-2 border-amber-500 pl-3">
+                                "${escapeHtml(item.quote)}"
+                            </p>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
